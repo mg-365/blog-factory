@@ -5,17 +5,38 @@
   <title>My Factory Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <style>
-    /* #1 - 기본 스타일 (style 태그는 나중에 계속 확장 가능) */
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: url('https://blog.kakaocdn.net/dn/bN0Ek5/btsH38aqAuD/h7t4HCL1BDPoacllLYu7ok/img.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #f0f0f0;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .summary-bar {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 12px;
+    }
     .input-bar {
       display: flex;
       gap: 10px;
-      margin: 12px 0;
+      margin-bottom: 10px;
     }
     .url-input {
       padding: 6px 12px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: none;
       flex: 1;
+      font-size: 14px;
     }
     .add-btn {
       background-color: #00cc66;
@@ -26,23 +47,104 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    .sort-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .sort-btn {
+      background-color: #00aaff;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .search-input {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      width: 200px;
+    }
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      position: relative;
+    }
+    .blog-card {
+      background-color: rgba(30, 30, 30, 0.9);
+      border-radius: 12px;
+      padding: 10px;
+      width: 300px;
+      box-shadow: 0 0 18px rgba(0, 255, 204, 0.4);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+    }
+    .blog-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 24px rgba(0, 255, 204, 0.8);
+    }
+    .blog-card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #00ffc3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .blog-card h2 img {
+      width: 20px;
+      height: 20px;
+    }
+    .mini-bar {
+      height: 6px;
+      background: #555;
+      border-radius: 3px;
+      margin: 2px 0 6px;
+      overflow: hidden;
+    }
+    .mini-fill {
+      height: 100%;
+      background: linear-gradient(to right, #00ffcc, #00aaff);
+    }
+    .last-read {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+    .alert {
+      color: #ff5555;
+      font-weight: bold;
+    }
+    .action-btn {
+      background-color: #00ffcc;
+      color: #1b1b1b;
+      border: none;
+      padding: 6px 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .highlight-green { color: #00ff99; font-weight: bold; }
+    .highlight-blue { color: #66ccff; font-weight: bold; }
+    .highlight-orange { color: #ffcc66; font-weight: bold; }
+    .highlight-red { color: #ff6666; font-weight: bold; }
+    .highlight-purple { color: #c28fff; font-weight: bold; }
   </style>
 </head>
 <body>
-  <!-- #2 - 대시보드 UI 전체 오버레이 -->
   <div class="overlay">
-    <!-- #3 - 요약 통계 바 -->
-    <div class="summary-bar" id="summaryBar">
-      📊 전체 블로그 수: 0 | 오늘 작성된 글: 0 | 미열람 블로-그: 0
-    </div>
+    <div class="summary-bar" id="summaryBar">📊 전체 블로그 수: 0 | 오늘 작성된 글: 0 | 미열람_블로그: 0</div>
 
-    <!-- #3.5 - 블로그 주소 입력창 -->
     <div class="input-bar">
       <input class="url-input" type="text" id="newBlogUrl" placeholder="새 블로그 URL 입력">
       <button class="add-btn" onclick="addBlogUrl()">➕ 추가</button>
     </div>
 
-    <!-- #4 - 정렬 버튼 & 검색창 -->
     <div class="sort-bar">
       <input class="search-input" type="text" id="searchInput" placeholder="🔍 블로그 검색" oninput="filterBlogs()">
       <button class="sort-btn" onclick="sortBlogs('created')">🕓 생성일순</button>
@@ -50,11 +152,9 @@
       <button class="sort-btn" onclick="sortBlogs('status')">⚙️ 상태순</button>
     </div>
 
-    <!-- #5 - 블로그 카드들이 렌더링되는 메인 공간 -->
     <div class="dashboard" id="dashboard"></div>
   </div>
 
-  <!-- #6 - 자바스크립트 영역 시작 -->
   <script>
     let blogs = [];
     let filteredBlogs = [];
@@ -136,14 +236,12 @@
       renderCards();
     }
 
-    // #6-8: 블로그 URL 추가 버튼 클릭 시 처리
     function addBlogUrl() {
       const input = document.getElementById('newBlogUrl');
       const url = input.value.trim();
       if (!url) return alert('블로그 URL을 입력해주세요!');
-
       console.log('🔗 새 블로그 추가 요청됨:', url);
-      // TODO: 서버로 전송하거나 로컬 저장 연동 필요 (Python 자동화와 연동 예정)
+      // TODO: 이곳에 자동 등록 로직 연결 예정
       input.value = '';
     }
   </script>
