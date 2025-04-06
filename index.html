@@ -159,13 +159,17 @@
 
   <!-- #12 - 스크립트 시작 -->
   <script>
-    // #20 - 초기 블로그 데이터
-    const blogs = [
-      { name: '티스토리 A', 상태: '최적화', 예약글: 3, 작성수: 24, 전체글: 60, 초안: 2, 키워드: '자동차 보험료', 생성일: '2024-02-20', 오늘작성: true, 마지막열람: '2024-04-06T09:15:00Z', 프로필: 'Profile A', 방문자: 1024 },
-      { name: '네이버 B', 상태: '미최적화', 예약글: 2, 작성수: 215, 전체글: 215, 초안: 0, 키워드: '소상공인 대출', 생성일: '2024-03-10', 오늘작성: false, 마지막열람: '2024-04-01T14:00:00Z', 프로필: 'Profile B', 방문자: 330 },
-      { name: '워드프레스 C', 상태: '저품질 의심', 예약글: 0, 작성수: 7, 전체글: 15, 초안: 3, 키워드: '건강식품 후기', 생성일: '2024-02-25', 오늘작성: true, 마지막열람: '2024-04-03T12:30:00Z', 프로필: 'Profile C', 방문자: 95 }
-    ];
-    let filteredBlogs = [...blogs];
+    // #20 - 외부 JSON에서 데이터 불러오기
+    let blogs = [];
+    let filteredBlogs = [];
+
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        blogs = data;
+        filteredBlogs = [...blogs];
+        renderCards();
+      });
 
     // #21 - 열람일 계산
     function timeDiffText(isoTime) {
@@ -237,9 +241,6 @@
       }
       renderCards();
     }
-
-    // #26 - 초기 실행
-    renderCards();
   </script>
 </body>
 </html>
