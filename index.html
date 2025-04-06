@@ -217,6 +217,8 @@
           <p>크롬 프로필: ${blog.프로필}</p>
           <p class="last-read">🕒 ${timeDiffText(blog.마지막열람)}${notRead ? ' <span class="alert">(열람 필요!)</span>' : ''}</p>
           <button class="action-btn" onclick="console.log('✅ ${blog.name} 열기 클릭됨')">🔍 열기</button>
+          <button class="delete-btn" data-id="블로그ID">삭제</button>
+
         `;
         dashboard.appendChild(card);
       });
