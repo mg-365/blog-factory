@@ -192,6 +192,8 @@
       let todayCount = 0;
       let notReadCount = 0;
 
+
+      // 1. Supabase에서 블로그 목록을 가져와서 카드로 생성하는 코드
       filteredBlogs.forEach(blog => {
         if (blog.오늘작성) todayCount++;
         const notRead = new Date() - new Date(blog.마지막열람) > 1000 * 60 * 60 * 24 * 3;
@@ -220,6 +222,26 @@
           <button class="delete-btn" data-id="${blog.id}">삭제</button>
         `;
         dashboard.appendChild(card);
+      });
+
+      // 🔽 2. 카드들이 다 생성된 이후에 이 코드가 실행돼야 함
+      document.addEventListener("click", async (e) => {
+        if (e.target.classList.contains("delete-btn")) {
+          const id = e.target.dataset.id;
+      
+          const res = await fetch("https://blog-factory-engine.onrender.com/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: parseInt(id) })
+          });
+      
+          if (res.ok) {
+            alert("삭제 성공!");
+            location.reload(); // 새로고침으로 카드 갱신
+          } else {
+            alert("삭제 실패!");
+          }
+        }
       });
 
       document.getElementById('summaryBar').textContent = `📊 전체 블로그 수: ${filteredBlogs.length} | 오늘 작성된 글: ${todayCount} | 미열람 블로그: ${notReadCount}`;
