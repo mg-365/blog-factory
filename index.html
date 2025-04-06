@@ -159,7 +159,7 @@
     let blogs = [];
     let filteredBlogs = [];
 
-    fetch('data.json')
+    fetch('https://blog-factory-engine.onrender.com/data')
       .then(res => res.json())
       .then(data => {
         blogs = data;
