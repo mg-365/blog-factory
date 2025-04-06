@@ -237,13 +237,47 @@
     }
 
     function addBlogUrl() {
-      const input = document.getElementById('newBlogUrl');
-      const url = input.value.trim();
-      if (!url) return alert('블로그 URL을 입력해주세요!');
-      console.log('🔗 새 블로그 추가 요청됨:', url);
-      // TODO: 이곳에 자동 등록 로직 연결 예정
-      input.value = '';
+  const input = document.getElementById('newBlogUrl');
+  const url = input.value.trim();
+  if (!url) return alert('블로그 URL을 입력해주세요!');
+
+  const blogData = {
+    name: url,
+    상태: "미최적화",
+    예약글: 0,
+    작성수: 0,
+    전체글: 0,
+    초안: 0,
+    키워드: "미입력",
+    생성일: new Date().toISOString().slice(0, 10),
+    오늘작성: false,
+    마지막열람: new Date().toISOString(),
+    프로필: "Profile X",
+    방문자: 0
+  };
+
+  fetch("https://blog-factory-engine.onrender.com/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(blogData)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.message === 'Blog added!') {
+      alert("블로그가 성공적으로 추가되었습니다!");
+      input.value = "";
+      location.reload(); // 새로고침
+    } else {
+      alert("오류 발생: " + JSON.stringify(res));
     }
+  })
+  .catch(err => {
+    alert("서버 오류: " + err.message);
+  });
+}
+
   </script>
 </body>
 </html>
