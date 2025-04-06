@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>My Factory Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* #1 - 기본 스타일 */
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: url('https://blog.kakaocdn.net/dn/bN0Ek5/btsH38aqAuD/h7t4HCL1BDPoacllLYu7ok/img.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #f0f0f0;
+    }
+
+    /* #2 - 오버레이 및 기본 레이아웃 설정 */
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* #3 - 상단 요약 바 */
+    .summary-bar {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 12px;
+    }
+
+    /* #4 - 정렬 및 검색 바 */
+    .sort-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      z-index: 10;
+    }
+
+    /* #5 - 버튼 & 검색창 스타일 */
+    .sort-btn {
+      background-color: #00aaff;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .search-input {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      width: 200px;
+    }
+
+    /* #6 - 블로그 카드 전체 레이아웃 */
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* #7 - 블로그 카드 하나의 스타일 */
+    .blog-card {
+      background-color: rgba(30, 30, 30, 0.9);
+      border-radius: 12px;
+      padding: 10px;
+      width: 300px;
+      box-shadow: 0 0 18px rgba(0, 255, 204, 0.4);
+      position: relative;
+      z-index: 5;
+      line-height: 1.2;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+    }
+    .blog-card:hover {
+      z-index: 99;
+      transform: translateY(-6px);
+      box-shadow: 0 0 24px rgba(0, 255, 204, 0.8);
+    }
+    .blog-card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #00ffc3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .blog-card h2 img {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* #8 - 카드 내부 미니그래프 */
+    .mini-bar {
+      height: 6px;
+      background: #555;
+      border-radius: 3px;
+      margin: 2px 0 6px;
+      overflow: hidden;
+    }
+    .mini-fill {
+      height: 100%;
+      background: linear-gradient(to right, #00ffcc, #00aaff);
+      transition: width 0.3s ease-in-out;
+    }
+
+    /* #9 - 기타 스타일 */
+    .last-read {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+    .alert {
+      color: #ff5555;
+      font-weight: bold;
+    }
+    .action-btn {
+      background-color: #00ffcc;
+      color: #1b1b1b;
+      border: none;
+      padding: 6px 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    /* #10 - 상태별 색상 강조 */
+    .highlight-green { color: #00ff99; font-weight: bold; }
+    .highlight-blue { color: #66ccff; font-weight: bold; }
+    .highlight-orange { color: #ffcc66; font-weight: bold; }
+    .highlight-red { color: #ff6666; font-weight: bold; }
+    .highlight-purple { color: #c28fff; font-weight: bold; }
+
+    /* #100 - ✳️ 미래 기능 예약 (초성 검색 등) */
+    /* TODO: 초성 검색 기능은 향후 필요 시 여기에 구현 예정 */
+  </style>
+</head>
+<body>
+  <!-- #11 - 전체 UI 시작 -->
+  <div class="overlay">
+    <div class="summary-bar" id="summaryBar">📊 전체 블로그 수: 0 | 오늘 작성된 글: 0 | 미열람 블로그: 0</div>
+    <div class="sort-bar">
+      <input class="search-input" type="text" id="searchInput" placeholder="🔍 블로그 검색" oninput="filterBlogs()">
+      <button class="sort-btn" onclick="sortBlogs('created')">🕓 생성일순</button>
+      <button class="sort-btn" onclick="sortBlogs('visitors')">🔥 방문자순</button>
+      <button class="sort-btn" onclick="sortBlogs('status')">⚙️ 상태순</button>
+    </div>
+    <div class="dashboard" id="dashboard"></div>
+  </div>
+
+  <!-- #12 - 스크립트 시작 -->
+  <script>
+    // #20 - 초기 블로그 데이터
+    const blogs = [
+      { name: '티스토리 A', 상태: '최적화', 예약글: 3, 작성수: 24, 전체글: 60, 초안: 2, 키워드: '자동차 보험료', 생성일: '2024-02-20', 오늘작성: true, 마지막열람: '2024-04-06T09:15:00Z', 프로필: 'Profile A', 방문자: 1024 },
+      { name: '네이버 B', 상태: '미최적화', 예약글: 2, 작성수: 215, 전체글: 215, 초안: 0, 키워드: '소상공인 대출', 생성일: '2024-03-10', 오늘작성: false, 마지막열람: '2024-04-01T14:00:00Z', 프로필: 'Profile B', 방문자: 330 },
+      { name: '워드프레스 C', 상태: '저품질 의심', 예약글: 0, 작성수: 7, 전체글: 15, 초안: 3, 키워드: '건강식품 후기', 생성일: '2024-02-25', 오늘작성: true, 마지막열람: '2024-04-03T12:30:00Z', 프로필: 'Profile C', 방문자: 95 }
+    ];
+    let filteredBlogs = [...blogs];
+
+    // #21 - 열람일 계산
+    function timeDiffText(isoTime) {
+      const last = new Date(isoTime);
+      const now = new Date();
+      const diff = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+      return diff === 0 ? '오늘 열람' : `${diff}일 전 열람`;
+    }
+
+    // #22 - 생성일 경과 계산
+    function calcDaysPassed(dateStr) {
+      const created = new Date(dateStr);
+      const today = new Date();
+      return Math.floor((today - created) / (1000 * 60 * 60 * 24));
+    }
+
+    // #23 - 검색 필터 함수
+    function filterBlogs() {
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      filteredBlogs = keyword ? blogs.filter(blog => blog.name.toLowerCase().includes(keyword)) : [...blogs];
+      renderCards();
+    }
+
+    // #24 - 블로그 카드 렌더링
+    function renderCards() {
+      const dashboard = document.getElementById('dashboard');
+      dashboard.innerHTML = '';
+      let todayCount = 0;
+      let notReadCount = 0;
+
+      filteredBlogs.forEach(blog => {
+        if (blog.오늘작성) todayCount++;
+        const notRead = new Date() - new Date(blog.마지막열람) > 1000 * 60 * 60 * 24 * 3;
+        if (notRead) notReadCount++;
+
+        const 상태클래스 = blog.상태 === '최적화' ? 'highlight-green'
+          : blog.상태 === '미최적화' ? 'highlight-orange'
+          : 'highlight-red';
+
+        const card = document.createElement('div');
+        card.className = 'blog-card';
+        card.innerHTML = `
+          <h2><img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="icon">${blog.name}</h2>
+          <div class="mini-bar"><div class="mini-fill" style="width:${Math.min(blog.방문자 / 10, 100)}%"></div></div>
+          <p>예약 글: <span class="highlight-blue">${blog.예약글}건</span></p>
+          <p>오늘 방문자: <span class="highlight-green">${blog.방문자}명</span></p>
+          <p>상태: <span class="${상태클래스}">${blog.상태}</span></p>
+          <p>게시글: ${blog.작성수}개</p>
+          <p>생성 후: <span class="highlight-purple">D+${calcDaysPassed(blog.생성일)}</span></p>
+          <p>크롬 프로필: ${blog.프로필}</p>
+          <p class="last-read">🕒 ${timeDiffText(blog.마지막열람)}${notRead ? ' <span class="alert">(열람 필요!)</span>' : ''}</p>
+          <button class="action-btn" onclick="console.log('✅ ${blog.name} 열기 클릭됨')">🔍 열기</button>
+        `;
+        dashboard.appendChild(card);
+      });
+
+      document.getElementById('summaryBar').textContent = `📊 전체 블로그 수: ${filteredBlogs.length} | 오늘 작성된 글: ${todayCount} | 미열람 블로그: ${notReadCount}`;
+    }
+
+    // #25 - 정렬 기능
+    function sortBlogs(type) {
+      if (type === 'created') {
+        filteredBlogs.sort((a, b) => new Date(a.생성일) - new Date(b.생성일));
+      } else if (type === 'visitors') {
+        filteredBlogs.sort((a, b) => b.방문자 - a.방문자);
+      } else if (type === 'status') {
+        const priority = { '최적화': 1, '미최적화': 2, '저품질 의심': 3 };
+        filteredBlogs.sort((a, b) => priority[a.상태] - priority[b.상태]);
+      }
+      renderCards();
+    }
+
+    // #26 - 초기 실행
+    renderCards();
+  </script>
+</body>
+</html>
