@@ -218,16 +218,23 @@
             글 <a href="${검색링크}" target="_blank">${글수}</a> / 
             사이트 <a href="${검색링크}" target="_blank">${사이트}</a>
           </p>
-          
-          <p>예약 글: <span class="highlight-blue">${blog.예약글}건</span></p>
-          <p>오늘 방문자: <span class="highlight-green">${blog.방문자}명</span></p>
+
+
           <p>상태: <span class="${상태클래스}">${blog.상태}</span></p>
-          <p>게시글: ${blog.작성수}개</p>
           <p>전체 글: ${blog.전체글}개</p>
-          <p>초안 글: ${blog.초안}개</p>
-          <p>유입 키워드: <span class="highlight-blue">${blog.키워드}</span></p>
           <p>생성 후: <span class="highlight-purple">D+${calcDaysPassed(blog.생성일)}</span></p>
           <p>크롬 프로필: ${blog.프로필}</p>
+
+          
+          <!-- 
+          <p>예약 글: <span class="highlight-blue">${blog.예약글}건</span></p>
+          <p>오늘 방문자: <span class="highlight-green">${blog.방문자}명</span></p>
+          <p>게시글: ${blog.작성수}개</p>
+          <p>초안 글: ${blog.초안}개</p>
+          <p>유입 키워드: <span class="highlight-blue">${blog.키워드}</span></p>
+          -->
+          
+          
           <p class="last-read">🕒 ${timeDiffText(blog.마지막열람)}${notRead ? ' <span class="alert">(열람 필요!)</span>' : ''}</p>
           <button class="action-btn" onclick="console.log('✅ ${blog.name} 열기 클릭됨')">🔍 열기</button>
           <button class="delete-btn" data-id="${blog.id}">삭제</button>
