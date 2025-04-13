@@ -202,11 +202,23 @@
           : blog.상태 === '미최적화' ? 'highlight-orange'
           : 'highlight-red';
 
+        // ✅ 다음 저품질 진단 결과 변수 추가
+        const 글수 = blog.글수진단 ?? 0;
+        const 사이트 = blog.사이트노출 ? 'O' : 'X';
+        const 검색링크 = blog.검색링크 ?? '#';
+        
         const card = document.createElement('div');
         card.className = 'blog-card';
         card.innerHTML = `
           <h2><img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="icon">${blog.name}</h2>
           <div class="mini-bar"><div class="mini-fill" style="width:${Math.min(blog.방문자 / 10, 100)}%"></div></div>
+          
+          <!-- ✅ 진단 정보 표시 추가 -->
+          <p>통합검색: 
+            글 <a href="${검색링크}" target="_blank">${글수}</a> / 
+            사이트 <a href="${검색링크}" target="_blank">${사이트}</a>
+          </p>
+          
           <p>예약 글: <span class="highlight-blue">${blog.예약글}건</span></p>
           <p>오늘 방문자: <span class="highlight-green">${blog.방문자}명</span></p>
           <p>상태: <span class="${상태클래스}">${blog.상태}</span></p>
